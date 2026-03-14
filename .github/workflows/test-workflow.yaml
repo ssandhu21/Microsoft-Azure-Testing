@@ -3,7 +3,7 @@ name: Build, Push to ACR,
 on:
   push:
     branches: 
-      - master
+      - azure-testing
 
 # Allow Github to expose OIDC token to the job
 permissions:
