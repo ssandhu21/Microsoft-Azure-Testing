@@ -12,8 +12,8 @@ permissions:
 
 env:
   # Azure Container Registry settings
-  ACR_NAME: ${{ secrets.ACR_NAME }}                   # e.g. myregistry (without .azurecr.io)
-  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}   # e.g. myregistry.azurecr.io
+  ACR_NAME: sammystestregistry                 # e.g. myregistry (without .azurecr.io)
+  ACR_LOGIN_SERVER: sammystestregistry.azurecr.io   # e.g. myregistry.azurecr.io
   IMAGE_NAME: sammys-test-image
 
 jobs:
@@ -32,22 +32,15 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }} #a unique GUID (Globally Unique Identifier) representing your organization's dedicated instance of Microsoft Entra ID (formerly Azure Active Directory)
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} #a unique, alphanumeric GUID (Globally Unique Identifier) that identifies a specific Azure subscription, acting as a container for billing and resource management
 
-      - name: Get ACR login server
-        id: acr
-        run: |
-          LOGIN_SERVER=$(az acr show --name $ACR_NAME --query loginServer -o tsv)
-          echo "login_server=$LOGIN_SERVER" >> $GITHUB_OUTPUT
-
       - name: Log in to ACR
         run: az acr login --name $ACR_NAME
 
-      - name: Build image
+      - name: Build Docker Image
         run: |
-          docker build -t ${{ steps.acr.outputs.login_server }}/${IMAGE_NAME}:${{ github.sha }} .
-          docker tag ${{ steps.acr.outputs.login_server }}/${IMAGE_NAME}:${{ github.sha }} \
-                     ${{ steps.acr.outputs.login_server }}/${IMAGE_NAME}:latest
+          docker build -t $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }} .
+          docker tag $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }} $ACR_LOGIN_SERVER/$IMAGE_NAME:latest
 
-      - name: Push image tags
+      - name: Push Image
         run: |
-          docker push ${{ steps.acr.outputs.login_server }}/${IMAGE_NAME}:${{ github.sha }}
-          docker push ${{ steps.acr.outputs.login_server }}/${IMAGE_NAME}:latest
+          docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }}
+          docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:latest
