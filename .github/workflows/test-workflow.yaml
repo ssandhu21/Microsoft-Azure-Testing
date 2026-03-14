@@ -5,6 +5,11 @@ on:
     branches: 
       - master
 
+# Allow Github to expose OIDC token to the job
+permissions:
+  id-token: write
+  contents: read
+
 env:
   # Azure Container Registry settings
   ACR_NAME: ${{ secrets.ACR_NAME }}                   # e.g. myregistry (without .azurecr.io)
